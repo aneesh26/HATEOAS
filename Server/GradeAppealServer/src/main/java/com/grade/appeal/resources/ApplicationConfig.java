@@ -29,7 +29,9 @@ public class ApplicationConfig extends Application {
      * If required, comment out calling this method in getClasses().
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
+        resources.add(com.grade.appeal.activities.AppealResource.class);
         resources.add(com.grade.appeal.resources.OrderResource.class);
+        resources.add(com.grade.appeal.resources.OrderResource1.class);
         resources.add(com.grade.appeal.resources.PaymentResource.class);
         resources.add(com.grade.appeal.resources.ReceiptResource.class);
     }

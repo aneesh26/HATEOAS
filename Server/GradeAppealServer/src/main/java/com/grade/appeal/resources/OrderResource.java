@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-@Path("/order")
+@Path("/appeal")
 public class OrderResource {
     
     private static final Logger LOG = LoggerFactory.getLogger(OrderResource.class);
@@ -69,6 +69,15 @@ public class OrderResource {
         LOG.debug("Retrieved the order resource", response);
         
         return response;
+    }
+    
+    
+    @POST
+    @Path("/{orderId}/test")
+    @Consumes("application/vnd.restbucks+xml")
+    public void testMethod(){
+        LOG.info("Reached the inner location !!");
+    System.out.println("Reached the inner location !!");
     }
     
     @POST
