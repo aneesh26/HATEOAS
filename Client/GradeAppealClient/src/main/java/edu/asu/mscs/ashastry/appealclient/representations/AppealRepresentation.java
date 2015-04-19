@@ -73,6 +73,7 @@ public class AppealRepresentation extends Representation {
         AppealRepresentation appealRepresentation;     
         
         AppealServerUri withdrawUri = new AppealServerUri(appealUri.getBaseUri() + "/" + appealUri.getId().toString() + "/withdraw");
+        AppealServerUri approveUri = new AppealServerUri(appealUri.getBaseUri() + "/" + appealUri.getId().toString() + "/approve");
         LOG.debug("Withdraw URI = {}", withdrawUri);
         
         if(appeal.getStatus() == AppealStatus.PENDING) {
@@ -80,6 +81,7 @@ public class AppealRepresentation extends Representation {
             appealRepresentation = new AppealRepresentation(appeal, 
                     new Link(RELATIONS_URI + "edit", appealUri), 
                     new Link(RELATIONS_URI + "withdraw", withdrawUri), 
+                    new Link(RELATIONS_URI + "approve", approveUri), 
                     new Link(Representation.SELF_REL_VALUE, appealUri));
         } else if(appeal.getStatus() == AppealStatus.COMPLETED) {
             LOG.debug("The appeal status is {}", AppealStatus.COMPLETED);
@@ -151,6 +153,11 @@ public class AppealRepresentation extends Representation {
     public Link getEditLink() {
         LOG.info("Retrieving the Edit link ");
         return getLinkByName(RELATIONS_URI + "edit");
+    }
+    
+    public Link getApproveLink() {
+        LOG.info("Retrieving the Approve link ");
+        return getLinkByName(RELATIONS_URI + "approve");
     }
 
     public Link getPaymentLink() {

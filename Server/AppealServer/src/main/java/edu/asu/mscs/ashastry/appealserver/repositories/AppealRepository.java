@@ -75,7 +75,7 @@ public class AppealRepository {
     
     public boolean appealCreated(Identifier identifier) {
         LOG.debug("Checking to see if the appeal with id = {} has been created", identifier);
-        return OrderRepository.current().has(identifier);
+        return AppealRepository.current().has(identifier);
     }
     
     public boolean appealNotCreated(Identifier identifier) {

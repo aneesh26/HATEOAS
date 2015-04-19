@@ -72,6 +72,21 @@ public class Main {
         LOG.debug("Created appealRepresentation {} denoted by the URI {}", appealRepresentation, appealRepresentation.getSelfLink().getUri().toString());
         System.out.println(String.format("Appeal placed at [%s]", appealRepresentation.getSelfLink().getUri().toString()));
         
+        
+        //Edit the Appeal
+        
+        LOG.debug("\n\nStep 2. Edit the Appeal");
+        System.out.println(String.format("About to update appeal at [%s] via POST", appealRepresentation.getEditLink().getUri().toString()));
+        
+        appeal = new Appeal(1,"The new Contnt as a result of Edit appeal");
+        LOG.debug("Created base Appeal {}", appeal);
+        Link editLink = appealRepresentation.getEditLink();
+        LOG.debug("Created order Edit link {}", editLink);
+        AppealRepresentation updatedRepresentation = client.resource(editLink.getUri()).accept(editLink.getMediaType()).type(editLink.getMediaType()).post(AppealRepresentation.class, new AppealRepresentation(appeal));
+        LOG.debug("Created updated Appeal representation link {}", updatedRepresentation);
+        System.out.println(String.format("Appeal updated at [%s]", updatedRepresentation.getSelfLink().getUri().toString()));
+        
+        
         // Try to update a different order
       
         /*

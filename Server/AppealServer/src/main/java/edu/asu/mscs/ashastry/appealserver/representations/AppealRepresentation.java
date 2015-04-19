@@ -68,19 +68,23 @@ public class AppealRepresentation extends Representation {
         return appealRepresentation;
     }
     
-    public static AppealRepresentation createResponseOrderRepresentation(Appeal appeal, AppealServerUri appealUri) {
-        LOG.info("Creating a Response Order for order = {} and order URI", appeal.toString(), appealUri.toString());
+    public static AppealRepresentation createResponseAppealRepresentation(Appeal appeal, AppealServerUri appealUri) {
+        LOG.info("Creating a Response Appeal for appeal = {} and order URI", appeal.toString(), appealUri.toString());
         
         AppealRepresentation appealRepresentation;     
         
         AppealServerUri withdrawUri = new AppealServerUri(appealUri.getBaseUri() + "/" + appealUri.getId().toString() + "/withdraw");
+        AppealServerUri approveUri = new AppealServerUri(appealUri.getBaseUri() + "/" + appealUri.getId().toString() + "/approve");
         LOG.debug("Withdraw URI = {}", withdrawUri);
+         LOG.debug("Approve URI = {}", approveUri);
+       
         
         if(appeal.getStatus() == AppealStatus.PENDING) {
-            LOG.debug("The order status is {}", AppealStatus.PENDING);
+            LOG.debug("The appeal status is {}", AppealStatus.PENDING);
             appealRepresentation = new AppealRepresentation(appeal, 
                     new Link(RELATIONS_URI + "edit", appealUri), 
-                    new Link(RELATIONS_URI + "withdraw", withdrawUri), 
+                    new Link(RELATIONS_URI + "withdraw", withdrawUri),
+                    new Link(RELATIONS_URI + "approve", approveUri), 
                     new Link(Representation.SELF_REL_VALUE, appealUri));
         } else if(appeal.getStatus() == AppealStatus.COMPLETED) {
             LOG.debug("The appeal status is {}", AppealStatus.COMPLETED);
@@ -107,7 +111,7 @@ public class AppealRepresentation extends Representation {
         try {
             
             this.ID = appeal.getAppealID();
-            this.content = appeal.getAppealConent();
+            this.content = appeal.getAppealContent();
             this.status = appeal.getStatus();
             this.links = java.util.Arrays.asList(links);
         } catch (Exception ex) {
@@ -153,6 +157,12 @@ public class AppealRepresentation extends Representation {
         LOG.info("Retrieving the Edit link ");
         return getLinkByName(RELATIONS_URI + "edit");
     }
+    
+    public Link getApproveLink() {
+        LOG.info("Retrieving the Approve link ");
+        return getLinkByName(RELATIONS_URI + "approve");
+    }
+    
 
     public Link getPaymentLink() {
         LOG.info("Retrieving the Withdraw link ");

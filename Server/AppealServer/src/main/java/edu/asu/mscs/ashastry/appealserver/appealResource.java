@@ -7,6 +7,7 @@ package edu.asu.mscs.ashastry.appealserver;
 
 
 import edu.asu.mscs.ashastry.appealserver.activities.CreateAppealActivity;
+import edu.asu.mscs.ashastry.appealserver.activities.EditAppealActivity;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.PathParam;
@@ -60,12 +61,11 @@ public class appealResource {
     }
 
     
-      @POST
-    
+    @POST
     @Consumes("application/vnd.cse564-appeals+xml")
     @Produces("application/vnd.cse564-appeals+xml")
     public Response createAppeal(String appealRepresentation) {
- //       LOG.info("Creating an Appeal Resource");
+        LOG.info("Creating an Appeal Resource");
         
         Response response;
         System.out.println("Reached !!");
@@ -87,6 +87,38 @@ public class appealResource {
         
         return response;
     }
+    
+    @POST
+    @Path("/{appealId}")
+    @Consumes("application/vnd.cse564-appeals+xml")
+    @Produces("application/vnd.cse564-appeals+xml")
+    public Response updateAppeal(String appealRepresentation) {
+        LOG.info("Updating an Appeal Resource");
+        
+        Response response;
+        
+        try {
+            AppealRepresentation responseRepresentation = new EditAppealActivity().edit(AppealRepresentation.fromXmlString(appealRepresentation).getAppeal(), new AppealServerUri(uriInfo.getRequestUri()));
+            //response = Response.ok().entity(responseRepresentation).build();
+             response = Response.created(responseRepresentation.getEditLink().getUri()).entity(responseRepresentation).build();
+        } catch (InvalidOrderException ioe) {
+            LOG.debug("Invalid order in the XML representation {}", appealRepresentation);
+            response = Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (NoSuchOrderException nsoe) {
+            LOG.debug("No such order resource to update");
+            response = Response.status(Response.Status.NOT_FOUND).build();
+        } catch(UpdateException ue) {
+            LOG.debug("Problem updating the order resource");
+            response = Response.status(Response.Status.CONFLICT).build();
+        } catch (Exception ex) {
+            LOG.debug("Something went wrong updating the order resource");
+            response = Response.serverError().build();
+        } 
+        
+        LOG.debug("Resulting response for updating the order resource is {}", response);
+        
+        return response;
+     }
     
     /**
      * Retrieves representation of an instance of edu.asu.mscs.ashastry.appealserver.appealResource

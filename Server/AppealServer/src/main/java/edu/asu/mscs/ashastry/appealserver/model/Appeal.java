@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlTransient;
 public class Appeal {
     
     private int appealID;
-    private String appealConent;
+    private String appealContent;
     @XmlTransient
     private AppealStatus status = AppealStatus.START;
 
@@ -29,7 +29,7 @@ public class Appeal {
     
     public Appeal(int appealID, String appealConent, AppealStatus appealStatus) {
         this.appealID = appealID;
-        this.appealConent = appealConent;
+        this.appealContent = appealConent;
         this.status = appealStatus;
     }
 
@@ -37,7 +37,7 @@ public class Appeal {
         StringBuilder sb = new StringBuilder();
         sb.append("Appeal ID: " + appealID + "\n");
         sb.append("Appeal Status: " + status + "\n");
-        sb.append("Appeal Content: " + appealConent + "\n");
+        sb.append("Appeal Content: " + appealContent + "\n");
         
         return sb.toString();
     }
@@ -58,17 +58,17 @@ public class Appeal {
     }
 
     /**
-     * @return the appealConent
+     * @return the appealContent
      */
-    public String getAppealConent() {
-        return appealConent;
+    public String getAppealContent() {
+        return appealContent;
     }
 
     /**
-     * @param appealConent the appealConent to set
+     * @param appealContent the appealConent to set
      */
-    public void setAppealConent(String appealConent) {
-        this.appealConent = appealConent;
+    public void setAppealContent(String appealContent) {
+        this.appealContent = appealContent;
     }
 
     /**

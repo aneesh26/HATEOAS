@@ -32,9 +32,11 @@ public class CreateAppealActivity {
         
         AppealServerUri appealUri = new AppealServerUri(requestUri.getBaseUri() + "/appeal/" + identifier.toString());
         AppealServerUri withdrawUri = new AppealServerUri(requestUri.getBaseUri() + "/" + identifier.toString() + "/withdraw");
+        AppealServerUri approveUri = new AppealServerUri(requestUri.getBaseUri() + "/" + identifier.toString() + "/approve");
         return new AppealRepresentation(appeal, 
                 new Link(Representation.RELATIONS_URI + "edit", appealUri), 
                 new Link(Representation.RELATIONS_URI + "withdraw", withdrawUri), 
+                new Link(Representation.RELATIONS_URI + "approve", approveUri),
                 new Link(Representation.SELF_REL_VALUE, appealUri));
     }
     
