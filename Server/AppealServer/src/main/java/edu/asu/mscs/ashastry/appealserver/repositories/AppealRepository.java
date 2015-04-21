@@ -34,12 +34,12 @@ public class AppealRepository {
     
     public Appeal get(Identifier identifier) {
         LOG.debug("Retrieving Appeal object for identifier {}", identifier);
-        return backingStore.get(identifier.toString());
+        return getBackingStore().get(identifier.toString());
      }
     
     public Appeal take(Identifier identifier) {
         LOG.debug("Removing the Appeal object for identifier {}", identifier);
-        Appeal appeal = backingStore.get(identifier.toString());
+        Appeal appeal = getBackingStore().get(identifier.toString());
         remove(identifier);
         return appeal;
     }
@@ -50,19 +50,19 @@ public class AppealRepository {
         Identifier id = new Identifier();
         LOG.debug("New Appeal object id is {}", id);
                 
-        backingStore.put(id.toString(), appeal);
+        getBackingStore().put(id.toString(), appeal);
         return id;
     }
     
     public void store(Identifier identifier, Appeal appeal) {
         LOG.debug("Storing again the Appeal object with id", identifier);
-        backingStore.put(identifier.toString(), appeal);
+        getBackingStore().put(identifier.toString(), appeal);
     }
 
     public boolean has(Identifier identifier) {
         LOG.debug("Checking to see if there is an Appeal object associated with the id {} in the Appeal store", identifier);
         
-        boolean result =  backingStore.containsKey(identifier.toString());
+        boolean result =  getBackingStore().containsKey(identifier.toString());
         LOG.debug("The result of the search is {}", result);
         
         return result;
@@ -70,7 +70,7 @@ public class AppealRepository {
 
     public void remove(Identifier identifier) {
         LOG.debug("Removing from storage the Appeal object with id", identifier);
-        backingStore.remove(identifier.toString());
+        getBackingStore().remove(identifier.toString());
     }
     
     public boolean appealCreated(Identifier identifier) {
@@ -85,7 +85,7 @@ public class AppealRepository {
     
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for(Map.Entry<String, Appeal> entry : backingStore.entrySet()) {
+        for(Map.Entry<String, Appeal> entry : getBackingStore().entrySet()) {
             sb.append(entry.getKey());
             sb.append("\t:\t");
             sb.append(entry.getValue());
@@ -99,6 +99,15 @@ public class AppealRepository {
     }
 
     public int size() {
-        return backingStore.size();
+        return getBackingStore().size();
     }
+
+    /**
+     * @return the backingStore
+     */
+    public HashMap<String, Appeal> getBackingStore() {
+        return backingStore;
+    }
+    
+    
 }

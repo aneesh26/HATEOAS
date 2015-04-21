@@ -16,6 +16,7 @@ import edu.asu.mscs.ashastry.appealserver.representations.AppealRepresentation;
 import edu.asu.mscs.ashastry.appealserver.representations.AppealServerUri;
 import edu.asu.mscs.ashastry.appealserver.representations.OrderRepresentation;
 import edu.asu.mscs.ashastry.appealserver.representations.RestbucksUri;
+import java.util.Date;
 
 
 
@@ -45,7 +46,10 @@ public class EditAppealActivity {
         Appeal storedAppeal = repository.get(appealIdentifier);
         
         storedAppeal.setStatus(AppealStatus.PENDING);
-        storedAppeal.setAppealContent(appeal.getAppealContent());
+        
+        Date date = new Date();
+        
+        storedAppeal.setAppealContent(appeal.getAppealContent() + "\n\nAppeal updated on " + date.toString());
         
         //replacing the current appeal with the updated appeal object
         repository.store(appealIdentifier,storedAppeal);

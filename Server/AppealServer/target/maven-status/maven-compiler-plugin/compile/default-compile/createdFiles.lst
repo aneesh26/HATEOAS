@@ -11,7 +11,6 @@ edu\asu\mscs\ashastry\appealserver\model\Milk.class
 edu\asu\mscs\ashastry\appealserver\activities\UriExchange.class
 edu\asu\mscs\ashastry\appealserver\model\OrderStatus.class
 edu\asu\mscs\ashastry\appealserver\OrderResource.class
-edu\asu\mscs\ashastry\appealserver\representations\AppealServerUri.class
 edu\asu\mscs\ashastry\appealserver\model\Payment.class
 edu\asu\mscs\ashastry\appealserver\activities\UpdateException.class
 edu\asu\mscs\ashastry\appealserver\representations\RestbucksUri.class

@@ -16,6 +16,10 @@ import java.net.URISyntaxException;
 public class AppealServerUri {
     private URI uri;
     
+    public AppealServerUri(){
+        
+    }
+    
     public AppealServerUri(String uri) {
         try {
             this.uri = new URI(uri);

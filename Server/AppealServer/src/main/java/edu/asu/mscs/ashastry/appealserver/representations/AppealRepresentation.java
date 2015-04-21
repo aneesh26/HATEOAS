@@ -73,8 +73,11 @@ public class AppealRepresentation extends Representation {
         
         AppealRepresentation appealRepresentation;     
         
-        AppealServerUri withdrawUri = new AppealServerUri(appealUri.getBaseUri() + "/" + appealUri.getId().toString() + "/withdraw");
-        AppealServerUri approveUri = new AppealServerUri(appealUri.getBaseUri() + "/" + appealUri.getId().toString() + "/approve");
+        AppealServerUri withdrawUri = new AppealServerUri(appealUri.getBaseUri() + "/appeals/" + appealUri.getId().toString() + "/withdraw");
+        AppealServerUri approveUri = new AppealServerUri(appealUri.getBaseUri() + "/appeals/" + appealUri.getId().toString() + "/approve");
+        AppealServerUri followUpUri = new AppealServerUri(appealUri.getBaseUri() + "/appeals/" + appealUri.getId().toString() + "/followup");
+        AppealServerUri selfUri = new AppealServerUri(appealUri.getBaseUri() + "/appeals/" + appealUri.getId().toString());   
+     
         LOG.debug("Withdraw URI = {}", withdrawUri);
          LOG.debug("Approve URI = {}", approveUri);
        
@@ -85,13 +88,14 @@ public class AppealRepresentation extends Representation {
                     new Link(RELATIONS_URI + "edit", appealUri), 
                     new Link(RELATIONS_URI + "withdraw", withdrawUri),
                     new Link(RELATIONS_URI + "approve", approveUri), 
+                    new Link(RELATIONS_URI + "followup", followUpUri),
                     new Link(Representation.SELF_REL_VALUE, appealUri));
         } else if(appeal.getStatus() == AppealStatus.COMPLETED) {
             LOG.debug("The appeal status is {}", AppealStatus.COMPLETED);
-            appealRepresentation = new AppealRepresentation(appeal, new Link(Representation.SELF_REL_VALUE, appealUri));
+            appealRepresentation = new AppealRepresentation(appeal, new Link(RELATIONS_URI + "view", selfUri));
         } else if(appeal.getStatus() == AppealStatus.WITHDRAWN) {
             LOG.debug("The appeal status is {}", AppealStatus.WITHDRAWN);
-            appealRepresentation = new AppealRepresentation(appeal, new Link(Representation.RELATIONS_URI ,withdrawUri));
+            appealRepresentation = new AppealRepresentation(appeal, new Link(RELATIONS_URI + "view" ,selfUri));
         } else if(appeal.getStatus() == AppealStatus.START) {
             LOG.debug("The appeal status is {}", AppealStatus.START);
             appealRepresentation = new AppealRepresentation(appeal);            
@@ -164,7 +168,7 @@ public class AppealRepresentation extends Representation {
     }
     
 
-    public Link getPaymentLink() {
+    public Link getWithdrawLink() {
         LOG.info("Retrieving the Withdraw link ");
         return getLinkByName(RELATIONS_URI + "withdraw");
     }
@@ -172,6 +176,16 @@ public class AppealRepresentation extends Representation {
     public Link getSelfLink() {
         LOG.info("Retrieving the Self link ");
         return getLinkByName("self");
+    }
+    
+      public Link getViewLink() {
+        LOG.info("Retrieving the View link ");
+        return getLinkByName(RELATIONS_URI + "view");
+    }
+      
+      public Link getFollowUpLink() {
+        LOG.info("Retrieving the FollowUp link ");
+        return getLinkByName(RELATIONS_URI + "followup");
     }
     
     public AppealStatus getStatus() {

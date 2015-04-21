@@ -37,10 +37,10 @@ class RepresentationHypermediaProcessor {
 
         if (representation != null) {
 
-            if (representation.getPaymentLink() != null) {
+         /*   if (representation.getPaymentLink() != null) {
                 actions.add(new PaymentActivity(representation.getPaymentLink().getUri()));
             }
-
+            */
        /*     if (representation.getEditLink() != null) {
                 actions.add(new UpdateOrderActivity(representation.getEditLink()().getUri()));
             }

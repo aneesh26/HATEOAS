@@ -34,8 +34,15 @@ public class AppealServerUri {
 
     public Identifier getId() {
         String path = uri.getPath();
+        
+        String temp = path.substring(path.lastIndexOf("/"),path.length());
+        if(temp.length() < 10){
+              path = path.substring(0, path.lastIndexOf("/"));
+        }
         return new Identifier(path.substring(path.lastIndexOf("/") + 1, path.length()));
     }
+    
+    
 
     public URI getFullUri() {
         return uri;
