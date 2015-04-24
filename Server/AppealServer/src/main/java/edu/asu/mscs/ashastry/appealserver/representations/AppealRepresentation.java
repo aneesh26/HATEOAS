@@ -1,18 +1,34 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Copyright 2015 Aneesh Shastry,
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * <p/>
+ * Purpose: Grade Appeal HATEOAS application using RESTful web services. Using 
+ *          this function, a client can  Create, Update, FollowUp, Approve,
+ *          Withdraw an appeal. Also, the client can get a list of pending 
+ *          appeals for followup
+ *
+ * @author Aneesh Shastry ashastry@asu.edu
+ *         MS Computer Science, CIDSE, IAFSE, Arizona State University
+ * @version April 24, 2015
  */
+
+
 package edu.asu.mscs.ashastry.appealserver.representations;
 
-import edu.asu.mscs.ashastry.appealserver.activities.InvalidOrderException;
-import edu.asu.mscs.ashastry.appealserver.activities.UriExchange;
+import edu.asu.mscs.ashastry.appealserver.activities.InvalidAppealException;
 import edu.asu.mscs.ashastry.appealserver.model.Appeal;
 import edu.asu.mscs.ashastry.appealserver.model.AppealStatus;
-import edu.asu.mscs.ashastry.appealserver.model.Item;
-import edu.asu.mscs.ashastry.appealserver.model.Location;
-import edu.asu.mscs.ashastry.appealserver.model.Order;
-import edu.asu.mscs.ashastry.appealserver.model.OrderStatus;
 import static edu.asu.mscs.ashastry.appealserver.representations.Representation.RELATIONS_URI;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
@@ -61,7 +77,7 @@ public class AppealRepresentation extends Representation {
             Unmarshaller unmarshaller = context.createUnmarshaller();
             appealRepresentation = (AppealRepresentation) unmarshaller.unmarshal(new ByteArrayInputStream(xmlRepresentation.getBytes()));
         } catch (Exception e) {
-            throw new InvalidOrderException(e);
+            throw new InvalidAppealException(e);
         }
         
         LOG.debug("Generated the object {}", appealRepresentation);
@@ -119,7 +135,7 @@ public class AppealRepresentation extends Representation {
             this.status = appeal.getStatus();
             this.links = java.util.Arrays.asList(links);
         } catch (Exception ex) {
-            throw new InvalidOrderException(ex);
+            throw new InvalidAppealException(ex);
         }
         
         LOG.debug("Created the AppealRepresentation {}", this);
@@ -146,7 +162,7 @@ public class AppealRepresentation extends Representation {
         LOG.debug("ID = {}", ID);
         LOG.debug("Content = {}", content);
         if (ID < 1 || content == null) {
-            throw new InvalidOrderException();
+            throw new InvalidAppealException();
         }
         
         

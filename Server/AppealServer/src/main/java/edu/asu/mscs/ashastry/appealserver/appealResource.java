@@ -1,8 +1,28 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Copyright 2015 Aneesh Shastry,
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * <p/>
+ * Purpose: Grade Appeal HATEOAS application using RESTful web services. Using 
+ *          this function, a client can  Create, Update, FollowUp, Approve,
+ *          Withdraw an appeal. Also, the client can get a list of pending 
+ *          appeals for followup
+ *
+ * @author Aneesh Shastry ashastry@asu.edu
+ *         MS Computer Science, CIDSE, IAFSE, Arizona State University
+ * @version April 24, 2015
  */
+
 package edu.asu.mscs.ashastry.appealserver;
 
 
@@ -24,20 +44,14 @@ import javax.ws.rs.core.Response;
 
 
 
-import edu.asu.mscs.ashastry.appealserver.activities.RemoveOrderActivity;
 
-import edu.asu.mscs.ashastry.appealserver.activities.InvalidOrderException;
-import edu.asu.mscs.ashastry.appealserver.activities.NoSuchOrderException;
-import edu.asu.mscs.ashastry.appealserver.activities.OrderDeletionException;
-import edu.asu.mscs.ashastry.appealserver.activities.ReadOrderActivity;
+import edu.asu.mscs.ashastry.appealserver.activities.InvalidAppealException;
+import edu.asu.mscs.ashastry.appealserver.activities.NoSuchAppealException;
 import edu.asu.mscs.ashastry.appealserver.activities.UpdateException;
-import edu.asu.mscs.ashastry.appealserver.activities.UpdateOrderActivity;
 import edu.asu.mscs.ashastry.appealserver.activities.WithdrawAppealActivity;
 import edu.asu.mscs.ashastry.appealserver.representations.AppealListRepresentation;
 import edu.asu.mscs.ashastry.appealserver.representations.AppealRepresentation;
 import edu.asu.mscs.ashastry.appealserver.representations.AppealServerUri;
-import edu.asu.mscs.ashastry.appealserver.representations.OrderRepresentation;
-import edu.asu.mscs.ashastry.appealserver.representations.RestbucksUri;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.core.MediaType;
 
@@ -53,7 +67,7 @@ import org.slf4j.LoggerFactory;
 @Path("/appeals")
 public class appealResource {
     
- private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(OrderResource.class);
+ private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(appealResource.class);
 
     private @Context UriInfo uriInfo;
 
@@ -79,7 +93,7 @@ public class appealResource {
         try {
             AppealRepresentation responseRepresentation = new CreateAppealActivity().create(AppealRepresentation.fromXmlString(appealRepresentation).getAppeal(), new AppealServerUri(uriInfo.getRequestUri()));
             response = Response.created(responseRepresentation.getEditLink().getUri()).entity(responseRepresentation).build();
-        } catch (InvalidOrderException ioe) {
+        } catch (InvalidAppealException ioe) {
             ioe.printStackTrace();
             
             LOG.debug("Invalid Order - Problem with the orderrepresentation {}", appealRepresentation);
@@ -107,10 +121,10 @@ public class appealResource {
             AppealRepresentation responseRepresentation = new EditAppealActivity().edit(AppealRepresentation.fromXmlString(appealRepresentation).getAppeal(), new AppealServerUri(uriInfo.getRequestUri()));
             //response = Response.ok().entity(responseRepresentation).build();
              response = Response.created(responseRepresentation.getEditLink().getUri()).entity(responseRepresentation).build();
-        } catch (InvalidOrderException ioe) {
+        } catch (InvalidAppealException ioe) {
             LOG.debug("Invalid order in the XML representation {}", appealRepresentation);
             response = Response.status(Response.Status.BAD_REQUEST).build();
-        } catch (NoSuchOrderException nsoe) {
+        } catch (NoSuchAppealException nsoe) {
             LOG.debug("No such order resource to update");
             response = Response.status(Response.Status.NOT_FOUND).build();
         } catch(UpdateException ue) {
@@ -138,10 +152,10 @@ public class appealResource {
         try {
              AppealRepresentation responseRepresentation = new ApproveAppealActivity().approve(new AppealServerUri(uriInfo.getRequestUri()));
              response = Response.created(responseRepresentation.getViewLink().getUri()).entity(responseRepresentation).build();
-        } catch (InvalidOrderException ioe) {
+        } catch (InvalidAppealException ioe) {
             LOG.debug("Invalid order in the XML representation {}", appealRepresentation);
             response = Response.status(Response.Status.BAD_REQUEST).build();
-        } catch (NoSuchOrderException nsoe) {
+        } catch (NoSuchAppealException nsoe) {
             LOG.debug("No such order resource to update");
             response = Response.status(Response.Status.NOT_FOUND).build();
         } catch(UpdateException ue) {
@@ -170,10 +184,10 @@ public class appealResource {
         try {
             AppealRepresentation responseRepresentation = new WithdrawAppealActivity().withdraw(new AppealServerUri(uriInfo.getRequestUri()));
             response = Response.created(responseRepresentation.getViewLink().getUri()).entity(responseRepresentation).build();
-        } catch (InvalidOrderException ioe) {
+        } catch (InvalidAppealException ioe) {
             LOG.debug("Invalid order in the XML representation {}", appealRepresentation);
             response = Response.status(Response.Status.BAD_REQUEST).build();
-        } catch (NoSuchOrderException nsoe) {
+        } catch (NoSuchAppealException nsoe) {
             LOG.debug("No such order resource to update");
             response = Response.status(Response.Status.NOT_FOUND).build();
         } catch(UpdateException ue) {
@@ -200,11 +214,14 @@ public class appealResource {
         try {
             AppealRepresentation responseRepresentation =  new FollowUpActivity().followUp(new AppealServerUri(uriInfo.getRequestUri()));
             response = Response.created(responseRepresentation.getEditLink().getUri()).entity(responseRepresentation).build();
-        } catch (InvalidOrderException ioe) {
+        } catch (InvalidAppealException ioe) {
             LOG.debug("Invalid order in the XML representation {}", appealRepresentation);
             response = Response.status(Response.Status.BAD_REQUEST).build();
-        } catch (NoSuchOrderException nsoe) {
+        } catch (NoSuchAppealException nsoe) {
             LOG.debug("No such order resource to update");
+           // LOG.debug("Sending the Client the list of Valid appeals for a folloup");
+           // this.createAppealList(appealRepresentation);
+            
             response = Response.status(Response.Status.NOT_FOUND).build();
         } catch(UpdateException ue) {
             LOG.debug("Problem updating the order resource");
@@ -233,7 +250,7 @@ public class appealResource {
             AppealListRepresentation responseRepresentation = new CreateAppealListActivity().createList(new AppealServerUri(uriInfo.getRequestUri()));
            // response = Response.created(responseRepresentation.getAppealsLink().getUri()).entity(responseRepresentation).build();
             response = Response.ok().entity(responseRepresentation).build();
-        } catch (InvalidOrderException ioe) {
+        } catch (InvalidAppealException ioe) {
             ioe.printStackTrace();
             
             LOG.debug("Invalid Order - Problem with the orderrepresentation {}", appealListRepresentation);

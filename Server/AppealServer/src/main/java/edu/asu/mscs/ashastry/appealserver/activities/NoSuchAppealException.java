@@ -24,52 +24,11 @@
  */
 
 
-package edu.asu.mscs.ashastry.appealclient.model;
 
-import edu.asu.mscs.ashastry.appealclient.representations.AppealServerUri;
+package edu.asu.mscs.ashastry.appealserver.activities;
 
+public class NoSuchAppealException extends RuntimeException {
 
-public class AppealLink {
+    private static final long serialVersionUID = -1965920604455766371L;
 
-    private int appealiD;
-    private AppealServerUri appealUri;
-    
-    public AppealLink() {
-    }
-    
-    public AppealLink(int appealID,AppealServerUri appealURI ){
-        this.appealiD = appealID;
-        this.appealUri = appealURI;
-    }
-
-    /**
-     * @return the appealiD
-     */
-    public int getAppealiD() {
-        return appealiD;
-    }
-
-    /**
-     * @param appealiD the appealiD to set
-     */
-    public void setAppealiD(int appealiD) {
-        this.appealiD = appealiD;
-    }
-
-    /**
-     * @return the appealUri
-     */
-    public AppealServerUri getAppealUri() {
-        return appealUri;
-    }
-
-    /**
-     * @param appealUri the appealUri to set
-     */
-    public void setAppealUri(AppealServerUri appealUri) {
-        this.appealUri = appealUri;
-    }
-    
-     
-    
 }

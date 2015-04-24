@@ -1,24 +1,37 @@
+/**
+ * Copyright 2015 Aneesh Shastry,
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * <p/>
+ * Purpose: Grade Appeal HATEOAS application using RESTful web services. Using 
+ *          this function, a client can  Create, Update, FollowUp, Approve,
+ *          Withdraw an appeal. Also, the client can get a list of pending 
+ *          appeals for followup
+ *
+ * @author Aneesh Shastry ashastry@asu.edu
+ *         MS Computer Science, CIDSE, IAFSE, Arizona State University
+ * @version April 24, 2015
+ */
+
+
+
 package edu.asu.mscs.ashastry.appealclient.client;
 
-import static edu.asu.mscs.ashastry.appealclient.model.OrderBuilder.order;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import edu.asu.mscs.ashastry.appealclient.client.activities.Actions;
-import edu.asu.mscs.ashastry.appealclient.client.activities.GetReceiptActivity;
-import edu.asu.mscs.ashastry.appealclient.client.activities.PaymentActivity;
-import edu.asu.mscs.ashastry.appealclient.client.activities.PlaceOrderActivity;
-import edu.asu.mscs.ashastry.appealclient.client.activities.ReadOrderActivity;
-import edu.asu.mscs.ashastry.appealclient.client.activities.UpdateOrderActivity;
-import edu.asu.mscs.ashastry.appealclient.model.Order;
-import edu.asu.mscs.ashastry.appealclient.model.OrderStatus;
-import edu.asu.mscs.ashastry.appealclient.model.Payment;
 import edu.asu.mscs.ashastry.appealclient.representations.Link;
-import edu.asu.mscs.ashastry.appealclient.representations.OrderRepresentation;
-//import edu.asu.mscs.ashastry.appealclient.representations.PaymentRepresentation;
-//import edu.asu.mscs.ashastry.appealclient.representations.ReceiptRepresentation;
-import edu.asu.mscs.ashastry.appealclient.representations.RestbucksUri;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -28,7 +41,13 @@ import edu.asu.mscs.ashastry.appealclient.model.AppealStatus;
 import edu.asu.mscs.ashastry.appealclient.representations.AppealListRepresentation;
 import edu.asu.mscs.ashastry.appealclient.representations.AppealRepresentation;
 import edu.asu.mscs.ashastry.appealclient.representations.AppealServerUri;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,8 +71,16 @@ public class Main {
         System.out.println("Pausing the client, press a key to start Abandon Path");
         System.in.read();
         abandonPath(serviceUri);
+        System.out.println("Pausing the client, press a key to start Forgotten Path");
+        System.in.read();
         forgottenPath(serviceUri);
+        System.out.println("Pausing the client, press a key to start Bad Start Path");
+        System.in.read();
         badStart(badServiceUri);
+        System.out.println("Pausing the client, press a key to start Bad ID Path");
+        System.in.read();
+        badID(serviceUri);
+        
         
     }
 
@@ -66,63 +93,68 @@ public class Main {
     }
 
     private static void happyPathTest(URI serviceUri) throws Exception {
+        System.out.println("\n////////////////////// START OF HAPPY PATH \\\\\\\\\\\\\\\\\\\\\\\n\n");
         LOG.info("Starting Happy Path Test with Service URI {}", serviceUri);
         // Place the order
-        LOG.info("Step 1. Create the Appeal");
-        System.out.println(String.format("About to start happy path test. Creating appeal at [%s] via POST", serviceUri.toString()));
+        LOG.info("+++++++++++++++ Step 1. Create the Appeal +++++++++++++++");
+        System.out.println(String.format("Creating appeal at [%s] via POST", serviceUri.toString()));
         //Order order = order().withRandomItems().build();
         Appeal appeal = new Appeal(1,"Test Content  New Appeal - 1");
-        LOG.debug("Created base appeal {}", appeal);
+    //    LOG.debug("Created base appeal {}", appeal);
         Client client = Client.create();
-        LOG.debug("Created client {}", client);
+     //   LOG.debug("Created client {}", client);
        // AppealRepresentation 
-      //  OrderRepresentation orderRepresentation = client.resource(serviceUri).accept(GRADEAPPEALS_MEDIA_TYPE).type(GRADEAPPEALS_MEDIA_TYPE).post(OrderRepresentation.class, new ClientOrder(order));
         AppealRepresentation appealRepresentation = client.resource(serviceUri).accept(APPEALS_MEDIA_TYPE).type(APPEALS_MEDIA_TYPE).post(AppealRepresentation.class, new ClientAppeal(appeal));
-      
-        // OrderRepresentation orderRepresentation1 = client.resource(serviceUri).accept(RESTBUCKS_MEDIA_TYPE).type(RESTBUCKS_MEDIA_TYPE).post(OrderRepresentation.class, new ClientOrder(order));
        
-        LOG.debug("Created appealRepresentation {} denoted by the URI {}", appealRepresentation, appealRepresentation.getSelfLink().getUri().toString());
+       // LOG.debug("Created appealRepresentation {} denoted by the URI {}", appealRepresentation, appealRepresentation.getSelfLink().getUri().toString());
+
         System.out.println(String.format("Appeal placed at [%s]", appealRepresentation.getSelfLink().getUri().toString()));
-        
+        printAppeal(appealRepresentation.getAppeal());
         
         //Edit the Appeal
         
-        LOG.debug("\n\nStep 2. Edit the Appeal");
+        LOG.debug("\n\n+++++++++++++++ Step 2. Edit the Appeal +++++++++++++++");
         System.out.println(String.format("About to update appeal at [%s] via POST", appealRepresentation.getEditLink().getUri().toString()));
         
         appeal = new Appeal(1,"The new Contnt as a result of Edit appeal");
-        LOG.debug("Created base Appeal {}", appeal);
+        System.out.println("Updated Content for the appeal at client side");
+        printAppeal(appeal);
+        //LOG.debug("Created base Appeal {}", appeal);
         Link editLink = appealRepresentation.getEditLink();
-        LOG.debug("Created order Edit link {}", editLink);
+        //LOG.debug("Created order Edit link {}", editLink);
         AppealRepresentation updatedRepresentation = client.resource(editLink.getUri()).accept(editLink.getMediaType()).type(editLink.getMediaType()).post(AppealRepresentation.class, new AppealRepresentation(appeal));
-        LOG.debug("Created updated Appeal representation link {}", updatedRepresentation);
+        //LOG.debug("Created updated Appeal representation link {}", updatedRepresentation);
+        System.out.println("Edited Appeal Content from Server");
+        printAppeal(updatedRepresentation.getAppeal());
         System.out.println(String.format("Appeal updated at [%s]", updatedRepresentation.getSelfLink().getUri().toString()));
         
         //Follow up the appeal
-        LOG.debug("\n\nStep 2.5 Followup on the Appeal");
+        /*LOG.debug("\n\nStep 3. Followup on the Appeal");
         System.out.println(String.format("About to follow up on an appeal at [%s] via GET", updatedRepresentation.getFollowUpLink().getUri().toString()));
         Link followUpLink = updatedRepresentation.getFollowUpLink();
          AppealRepresentation followUpRepresentation = client.resource(followUpLink.getUri()).get(AppealRepresentation.class);
         LOG.debug("Created follo up Appeal representation link {}", followUpRepresentation);
         System.out.println(String.format("Appeal followed up at [%s]", followUpRepresentation.getEditLink().getUri().toString()));
-        
-        
+        printApppeal(followUpRepresentation);
+        */
         
         // Approve the appeal
-        LOG.debug("\n\nStep 3. Approve the Appeal");
+        LOG.debug("\n\n+++++++++++++++ Step 3. Approve the Appeal +++++++++++++++");
         System.out.println(String.format("About to approve appeal at [%s] via GET", updatedRepresentation.getApproveLink().getUri().toString()));
         
         Link approveLink = updatedRepresentation.getApproveLink();
-        LOG.debug("Created appeal Approve link {}", approveLink);
+        //LOG.debug("Created appeal Approve link {}", approveLink);
        
         AppealRepresentation approveRepresentation = client.resource(approveLink.getUri()).get(AppealRepresentation.class);
        
-        LOG.debug("Created approve Appeal representation link {}", approveRepresentation);
+        System.out.println("Approved Appeal Content from Server");
+        printAppeal(approveRepresentation.getAppeal());
+        //LOG.debug("Created approve Appeal representation link {}", approveRepresentation);
         System.out.println(String.format("Appeal approved at [%s]", approveRepresentation.getViewLink().getUri().toString()));
         
         
         
-        
+       /* 
         //withdraw the appeal
         LOG.debug("\n\nStep 4. Withdrawing the Appeal");
         System.out.println(String.format("About to withdraw appeal at [%s] via GET", updatedRepresentation.getWithdrawLink().getUri().toString()));
@@ -170,153 +202,95 @@ public class Main {
             String id = (l.getRelValue()).substring((l.getRelValue()).lastIndexOf("/")+1,(l.getRelValue()).length());
             LOG.debug("Order No.: " + id + ", URI: "+ l.getUri().toString());  
         }
-       System.out.println("Pausing the client, press a key to continue");
-        System.in.read();
-       // LOG.debug("\n Received Appeals : {}",appealListRepresentation.toStringAppealList() );
-           
-        // Try to update a different order
-      
-        /*
-        LOG.info("\n\nStep 2. Try to update a different order");
-        System.out.println(String.format("About to update an order with bad URI [%s] via POST", orderRepresentation.getUpdateLink().getUri().toString() + "/bad-uri"));
-        order = order().withRandomItems().build();
-        LOG.debug("Created base order {}", order);
-        Link badLink = new Link("bad", new AppealServerUri(orderRepresentation.getSelfLink().getUri().toString() + "/bad-uri"), RESTBUCKS_MEDIA_TYPE);
-        LOG.debug("Create bad link {}", badLink);
-        ClientResponse badUpdateResponse = client.resource(badLink.getUri()).accept(badLink.getMediaType()).type(badLink.getMediaType()).post(ClientResponse.class, new OrderRepresentation(order));
-        LOG.debug("Created Bad Update Response {}", badUpdateResponse);
-        System.out.println(String.format("Tried to update order with bad URI at [%s] via POST, outcome [%d]", badLink.getUri().toString(), badUpdateResponse.getStatus()));
-        
-        // Change the order
-        LOG.debug("\n\nStep 3. Change the order");
-        System.out.println(String.format("About to update order at [%s] via POST", orderRepresentation.getUpdateLink().getUri().toString()));
-        order = order().withRandomItems().build();
-        LOG.debug("Created base order {}", order);
-        Link updateLink = orderRepresentation.getUpdateLink();
-        LOG.debug("Created order update link {}", updateLink);
-        OrderRepresentation updatedRepresentation = client.resource(updateLink.getUri()).accept(updateLink.getMediaType()).type(updateLink.getMediaType()).post(OrderRepresentation.class, new OrderRepresentation(order));
-        LOG.debug("Created updated order representation link {}", updatedRepresentation);
-        System.out.println(String.format("Order updated at [%s]", updatedRepresentation.getSelfLink().getUri().toString()));
-        
-        // Pay for the order 
-        LOG.debug("\n\nStep 4. Pay for the order");
-        System.out.println(String.format("About to create a payment resource at [%s] via PUT", updatedRepresentation.getPaymentLink().getUri().toString()));
-        Link paymentLink = updatedRepresentation.getPaymentLink();
-        LOG.debug("Created payment link {} for updated order representation {}", paymentLink, updatedRepresentation);
-        LOG.debug("paymentLink.getRelValue() = {}", paymentLink.getRelValue());
-        LOG.debug("paymentLink.getUri() = {}", paymentLink.getUri());
-        LOG.debug("paymentLink.getMediaType() = {}", paymentLink.getMediaType());
-        Payment payment = new Payment(updatedRepresentation.getCost(), "A.N. Other", "12345677878", 12, 2999);
-        LOG.debug("Created new payment object {}", payment);
-      //  PaymentRepresentation  paymentRepresentation = client.resource(paymentLink.getUri()).accept(paymentLink.getMediaType()).type(paymentLink.getMediaType()).put(PaymentRepresentation.class, new PaymentRepresentation(payment));        
-      //  LOG.debug("Created new payment representation {}", paymentRepresentation);
-      //  System.out.println(String.format("Payment made, receipt at [%s]", paymentRepresentation.getReceiptLink().getUri().toString()));
-        
-        // Get a receipt
-        LOG.debug("\n\nStep 5. Get a receipt");
-     //   System.out.println(String.format("About to request a receipt from [%s] via GET", paymentRepresentation.getReceiptLink().getUri().toString()));
-      //  Link receiptLink = paymentRepresentation.getReceiptLink();
-      //  LOG.debug("Retrieved the receipt link {} for payment represntation {}", receiptLink, paymentRepresentation);
-       // ReceiptRepresentation receiptRepresentation = client.resource(receiptLink.getUri()).get(ReceiptRepresentation.class);
-       // System.out.println(String.format("Payment made, amount in receipt [%f]", receiptRepresentation.getAmountPaid()));
-        
-        // Check on the order status
-        LOG.debug("\n\nStep 6. Check on the order status");
-       // System.out.println(String.format("About to check order status at [%s] via GET", receiptRepresentation.getOrderLink().getUri().toString()));
-       // Link orderLink = receiptRepresentation.getOrderLink();
-   //     OrderRepresentation finalOrderRepresentation = client.resource(orderLink.getUri()).accept(RESTBUCKS_MEDIA_TYPE).get(OrderRepresentation.class);
-      //  System.out.println(String.format("Final order placed, current status [%s]", finalOrderRepresentation.getStatus()));
-        
-        // Allow the barista some time to make the order
-        LOG.debug("\n\nStep 7. Allow the barista some time to make the order");
-        System.out.println("Pausing the client, press a key to continue");
-        System.in.read();
-        
-        // Take the order if possible
-        LOG.debug("\n\nStep 8. Take the order if possible");
-     //   System.out.println(String.format("Trying to take the ready order from [%s] via DELETE. Note: the internal state machine must progress the order to ready before this should work, otherwise expect a 405 response.", receiptRepresentation.getOrderLink().getUri().toString()));
-      //  ClientResponse finalResponse = client.resource(orderLink.getUri()).delete(ClientResponse.class);
-  //      System.out.println(String.format("Tried to take final order, HTTP status [%d]", finalResponse.getStatus()));
-   //     if(finalResponse.getStatus() == 200) {
-   //         System.out.println(String.format("Order status [%s], enjoy your drink", finalResponse.getEntity(OrderRepresentation.class).getStatus()));
-    //    }
-                */
+       */
+        LOG.info("\n\n*****************************************************************************\n\n");
     }
                 
     private static void abandonPath(URI serviceUri) throws Exception{
         
     
-    LOG.info("************************************************************");
+    LOG.info("\n\n*****************************************************************************\n\n");
+    System.out.println("\n////////////////////// START OF ABANDON PATH \\\\\\\\\\\\\\\\\\\\\\\n\n");
     LOG.info("Starting Abandon Test with Service URI {}", serviceUri);
         // Place the order
-        LOG.info("Step 1. Create the Appeal");
-        System.out.println(String.format("About to start happy path test. Creating appeal at [%s] via POST", serviceUri.toString()));
+        LOG.info("+++++++++++++++ Step 1. Create the Appeal +++++++++++++++");
+        System.out.println(String.format("Creating appeal at [%s] via POST", serviceUri.toString()));
         //Order order = order().withRandomItems().build();
         Appeal appeal = new Appeal(5,"Abandon Path: Test Content");
-        LOG.debug("Created base appeal {}", appeal);
+        
+       // LOG.debug("Created base appeal {}", appeal);
+        
         Client client = Client.create();
-        LOG.debug("Created client {}", client);
+       // LOG.debug("Created client {}", client);
        // AppealRepresentation 
       //  OrderRepresentation orderRepresentation = client.resource(serviceUri).accept(GRADEAPPEALS_MEDIA_TYPE).type(GRADEAPPEALS_MEDIA_TYPE).post(OrderRepresentation.class, new ClientOrder(order));
         AppealRepresentation appealRepresentation = client.resource(serviceUri).accept(APPEALS_MEDIA_TYPE).type(APPEALS_MEDIA_TYPE).post(AppealRepresentation.class, new ClientAppeal(appeal));
       
         // OrderRepresentation orderRepresentation1 = client.resource(serviceUri).accept(RESTBUCKS_MEDIA_TYPE).type(RESTBUCKS_MEDIA_TYPE).post(OrderRepresentation.class, new ClientOrder(order));
        
-        LOG.debug("Created appealRepresentation {} denoted by the URI {}", appealRepresentation, appealRepresentation.getSelfLink().getUri().toString());
+       // LOG.debug("Created appealRepresentation {} denoted by the URI {}", appealRepresentation, appealRepresentation.getSelfLink().getUri().toString());
         System.out.println(String.format("Appeal placed at [%s]", appealRepresentation.getSelfLink().getUri().toString()));
         
-         //withdraw the appeal
-        LOG.debug("\n\nStep 4. Withdrawing the Appeal");
-        System.out.println(String.format("About to withdraw appeal at [%s] via GET", appealRepresentation.getWithdrawLink().getUri().toString()));
-       
-        System.out.println(String.format("About to withdraw appeal at [%s] via POST", appealRepresentation.getWithdrawLink().getUri().toString()));
+        System.out.println("Created Appeal Content from Server");
+        printAppeal(appealRepresentation.getAppeal());
         
-         
+         //withdraw the appeal
+        LOG.debug("\n\n+++++++++++++++ Step 2. Withdrawing the Appeal +++++++++++++++");
+        System.out.println(String.format("About to withdraw appeal at [%s] via DELETE", appealRepresentation.getWithdrawLink().getUri().toString()));
+        
         Link withdrawLink = appealRepresentation.getWithdrawLink();
-        LOG.debug("Created appeal Approve link {}", withdrawLink);
+       // LOG.debug("Created appeal Approve link {}", withdrawLink);
         
         //actual delete takes place here
         AppealRepresentation withdrawRepresentation = client.resource(withdrawLink.getUri()).delete(AppealRepresentation.class);
         
        
-        LOG.debug("Created withdraw Appeal representation link {}", withdrawRepresentation);
+       // LOG.debug("Created withdraw Appeal representation link {}", withdrawRepresentation);
         System.out.println(String.format("Appeal withdrawn at [%s]", withdrawRepresentation.getViewLink().getUri().toString()));
         
+        System.out.println("Withdrawn Appeal Content from Server");
+        printAppeal(withdrawRepresentation.getAppeal());
         
+        LOG.info("\n\n*****************************************************************************\n\n");
         
     }
     
     private static void forgottenPath(URI serviceUri) throws Exception{
-         LOG.info("************************************************************");
+       LOG.info("\n\n*****************************************************************************\n\n");
+       System.out.println("\n////////////////////// START OF FORGOTTEN PATH \\\\\\\\\\\\\\\\\\\\\\\n\n");
     LOG.info("Starting Forgotten path Test with Service URI {}", serviceUri);
         // Place the order
-        LOG.info("Step 1. Create the Appeal");
-        System.out.println(String.format("About to start forgotten path test. Creating appeal at [%s] via POST", serviceUri.toString()));
+        LOG.info("+++++++++++++++ Step 1. Create the Appeal +++++++++++++++");
+        System.out.println(String.format("Creating appeal at [%s] via POST", serviceUri.toString()));
         //Order order = order().withRandomItems().build();
         Appeal appeal = new Appeal(6,"Forgotten Path: Test Content");
-        LOG.debug("Created base appeal {}", appeal);
+        //LOG.debug("Created base appeal {}", appeal);
         Client client = Client.create();
-        LOG.debug("Created client {}", client);
+        //LOG.debug("Created client {}", client);
        // AppealRepresentation 
       //  OrderRepresentation orderRepresentation = client.resource(serviceUri).accept(GRADEAPPEALS_MEDIA_TYPE).type(GRADEAPPEALS_MEDIA_TYPE).post(OrderRepresentation.class, new ClientOrder(order));
         AppealRepresentation appealRepresentation = client.resource(serviceUri).accept(APPEALS_MEDIA_TYPE).type(APPEALS_MEDIA_TYPE).post(AppealRepresentation.class, new ClientAppeal(appeal));
       
         // OrderRepresentation orderRepresentation1 = client.resource(serviceUri).accept(RESTBUCKS_MEDIA_TYPE).type(RESTBUCKS_MEDIA_TYPE).post(OrderRepresentation.class, new ClientOrder(order));
        
-        LOG.debug("Created appealRepresentation {} denoted by the URI {}", appealRepresentation, appealRepresentation.getSelfLink().getUri().toString());
+        //LOG.debug("Created appealRepresentation {} denoted by the URI {}", appealRepresentation, appealRepresentation.getSelfLink().getUri().toString());
         System.out.println(String.format("Appeal placed at [%s]", appealRepresentation.getSelfLink().getUri().toString()));
+        System.out.println("Withdrawn Appeal Content from Server");
+        printAppeal(appealRepresentation.getAppeal());
         
         
         //Follow up the appeal
-        LOG.debug("\n\nStep 2 Followup on the Appeal");
+        LOG.debug("\n\n+++++++++++++++ Step 2 Followup on the Appeal +++++++++++++++");
         System.out.println(String.format("About to follow up on an appeal at [%s] via GET", appealRepresentation.getFollowUpLink().getUri().toString()));
         Link followUpLink = appealRepresentation.getFollowUpLink();
          AppealRepresentation followUpRepresentation = client.resource(followUpLink.getUri()).get(AppealRepresentation.class);
-        LOG.debug("Created follow up Appeal representation link {}", followUpRepresentation);
+        //LOG.debug("Created follow up Appeal representation link {}", followUpRepresentation);
         System.out.println(String.format("Appeal followed up at [%s]", followUpRepresentation.getEditLink().getUri().toString()));
+        System.out.println("Followed up Appeal Content from Server");
+        printAppeal(followUpRepresentation.getAppeal());
         
          // Approve the appeal
-        LOG.debug("\n\nStep 3. Approve the Appeal");
+        LOG.debug("\n\n+++++++++++++++ Step 3. Approve the Appeal +++++++++++++++");
         System.out.println(String.format("About to approve appeal at [%s] via GET", followUpRepresentation.getApproveLink().getUri().toString()));
         
         Link approveLink = followUpRepresentation.getApproveLink();
@@ -324,39 +298,158 @@ public class Main {
        
         AppealRepresentation approveRepresentation = client.resource(approveLink.getUri()).get(AppealRepresentation.class);
        
-        LOG.debug("Created approve Appeal representation link {}", approveRepresentation);
+       // LOG.debug("Created approve Appeal representation link {}", approveRepresentation);
         System.out.println(String.format("Appeal approved at [%s]", approveRepresentation.getViewLink().getUri().toString()));
-       
+        System.out.println("Approved Appeal Content from Server");
+        printAppeal(approveRepresentation.getAppeal());
+       LOG.info("\n\n*****************************************************************************\n\n"); 
    
     }
     
     private static void badStart(URI serviceUri) throws Exception{
-         LOG.info("************************************************************");
+         LOG.info("\n\n*****************************************************************************\n\n");
+         System.out.println("\n////////////////////// START OF BAD-URI START PATH \\\\\\\\\\\\\\\\\\\\\\\n\n");
     LOG.info("Starting Bad Start case path Test with Service URI {}", serviceUri);
         // Place the order
-        LOG.info("Step 1. Create the Appeal");
-        System.out.println(String.format("About to start bad start path test. Creating appeal at [%s] via POST", serviceUri.toString()));
+        LOG.info("+++++++++++++++ Step 1. Create the Appeal +++++++++++++++");
+        System.out.println(String.format("Creating appeal at [%s] via POST", serviceUri.toString()));
         //Order order = order().withRandomItems().build();
         Appeal appeal = new Appeal(7,"Bad Start Path: Test Content");
-        LOG.debug("Created base appeal {}", appeal);
+        //LOG.debug("Created base appeal {}", appeal);
         Client client = Client.create();
-        LOG.debug("Created client {}", client);
+        //LOG.debug("Created client {}", client);
        // AppealRepresentation 
-      //  OrderRepresentation orderRepresentation = client.resource(serviceUri).accept(GRADEAPPEALS_MEDIA_TYPE).type(GRADEAPPEALS_MEDIA_TYPE).post(OrderRepresentation.class, new ClientOrder(order));
         try{
         AppealRepresentation appealRepresentation = client.resource(serviceUri).accept(APPEALS_MEDIA_TYPE).type(APPEALS_MEDIA_TYPE).post(AppealRepresentation.class, new ClientAppeal(appeal));
         }
         //bad link exception
         catch(UniformInterfaceException ble){
             if((ble.getMessage().toString().substring(ble.getMessage().toString().length()-13, ble.getMessage().toString().length())).equals("404 Not Found")){
-                LOG.debug(ble.getMessage().toString());
+                System.out.println(ble.getMessage().toString());
+                System.out.println("\n\n404 Error, Incorrect entry point URI:" + serviceUri.toString());
             }
             
         }
-        //AppealStatus status = appealRepresentation.getStatus();
-        
-        
+         LOG.info("\n\n*****************************************************************************\n\n");
+    }
+
+    private static void badID(URI serviceUri) throws Exception {
+          LOG.info("\n\n*****************************************************************************\n\n");
+          System.out.println("\n////////////////////// START OF BAD-ID/FORGOT PATH \\\\\\\\\\\\\\\\\\\\\\\n\n");
+        LOG.info("Starting Bad ID path Test with Service URI {}", serviceUri);
+        // Place the order
+        LOG.info("+++++++++++++++ Step 1. Create the Appeal for Bad Start +++++++++++++++");
+        System.out.println(String.format("Creating appeal at [%s] via POST", serviceUri.toString()));
+        //Order order = order().withRandomItems().build();
+        Appeal appeal = new Appeal(8,"Bad ID Path: Test Content");
+     //   LOG.debug("Created base appeal {}", appeal);
+        Client client = Client.create();
+       // LOG.debug("Created client {}", client);
+       // AppealRepresentation 
+        AppealRepresentation appealRepresentation = client.resource(serviceUri).accept(APPEALS_MEDIA_TYPE).type(APPEALS_MEDIA_TYPE).post(AppealRepresentation.class, new ClientAppeal(appeal));
+      
         // OrderRepresentation orderRepresentation1 = client.resource(serviceUri).accept(RESTBUCKS_MEDIA_TYPE).type(RESTBUCKS_MEDIA_TYPE).post(OrderRepresentation.class, new ClientOrder(order));
+       
+        //LOG.debug("Created appealRepresentation {} denoted by the URI {}", appealRepresentation, appealRepresentation.getSelfLink().getUri().toString());
+        System.out.println(String.format("Appeal placed at [%s]", appealRepresentation.getSelfLink().getUri().toString()));
+         System.out.println("Created Appeal Content from Server");
+        printAppeal(appealRepresentation.getAppeal());
+        
+        System.out.println("Now the user sends out a bad appeal URI for a follow up.");
+        
+         //Follow up the appeal
+        LOG.debug("\n\n+++++++++++++++ Step 2 Followup on the Appeal with bad URI +++++++++++++++");
+      
+        URI badServiceUri = new URI("http://localhost:8080/AppealServer/webresources/appeals/123456_Bad_URI_789/followup");
+        try{
+           AppealRepresentation followUpRepresentation = client.resource(badServiceUri).get(AppealRepresentation.class);
+        }
+        catch(UniformInterfaceException ble){
+            if((ble.getMessage().toString().substring(ble.getMessage().toString().length()-13, ble.getMessage().toString().length())).equals("404 Not Found")){
+                System.out.println(ble.getMessage().toString());
+                System.out.println("Incorrect appeal URI:" + serviceUri.toString());
+            }
+            
+        }
+        
+        System.out.println("Now, let us retrieve the list of all valid appeals from the server");
+          System.out.println(String.format("About to retrieve list of appeals from server [%s] via GET", serviceUri.toString()));
+        AppealListRepresentation appealListRepresentation = client.resource(serviceUri).get(AppealListRepresentation.class);
+        
+      //  LOG.debug("Created Get AppealList representation {}", appealListRepresentation);
+        
+        List<Link> returnedLinks = appealListRepresentation.getLinks();
+        
+        LOG.debug("The folllowing appeals were retrieved from the server:");
+        HashMap<String,URI> list = new HashMap<>();
+        
+        for(Link l: returnedLinks){
+           
+            String id = (l.getRelValue()).substring((l.getRelValue()).lastIndexOf("/")+1,(l.getRelValue()).length());
+            list.put(id,l.getUri());
+           
+        }
+        
+         Iterator it = list.entrySet().iterator();
+         while (it.hasNext()) {
+        HashMap.Entry pair = (HashMap.Entry)it.next();
+          System.out.println("ID: " + pair.getKey() + ", URI: " + pair.getValue());
+        }
+        
+       Set keyset=list.keySet(); 
+       System.out.println("Select the appeal ID by to follow up " + keyset);
+       
+       
+       // int input = Integer.parseInt(System.console().readLine());
+       Scanner in = new Scanner(System.in);
+       int input = in.nextInt();
+        //int input = 8;
+      
+        
+        URI uri = (URI)list.get(String.valueOf(input));
+        AppealServerUri aURI = new AppealServerUri(uri);
+        AppealServerUri appealUri = new AppealServerUri(aURI.toString() + "/followup");
+        
+        //Follow up the appeal
+        LOG.debug("\n\n+++++++++++++++ Step 2 Followup on the Appeal +++++++++++++++");
+        System.out.println(String.format("About to follow up on an appeal at [%s] via GET", appealUri.toString()));
+       // Link followUpLink = appealRepresentation.getFollowUpLink();
+         AppealRepresentation followUpRepresentation = client.resource(appealUri.getFullUri()).get(AppealRepresentation.class);
+        //LOG.debug("Created follow up Appeal representation link {}", followUpRepresentation);
+        System.out.println(String.format("Appeal followed up at [%s]", followUpRepresentation.getEditLink().getUri().toString()));
+           System.out.println("Followed Up Appeal Content from Server");
+        printAppeal(followUpRepresentation.getAppeal());
+     
+         // Approve the appeal
+        LOG.debug("\n\n+++++++++++++++ Step 3. Approve the Appeal +++++++++++++++");
+        System.out.println(String.format("About to approve appeal at [%s] via GET", followUpRepresentation.getApproveLink().getUri().toString()));
+        
+        Link approveLink = followUpRepresentation.getApproveLink();
+        LOG.debug("Created appeal Approve link {}", approveLink);
+       
+        AppealRepresentation approveRepresentation = client.resource(approveLink.getUri()).get(AppealRepresentation.class);
+       
+        //LOG.debug("Created approve Appeal representation link {}", approveRepresentation);
+        
+        System.out.println(String.format("Appeal approved at [%s]", approveRepresentation.getViewLink().getUri().toString()));
+          System.out.println("Approved Appeal Content from Server");
+        printAppeal(approveRepresentation.getAppeal());
+     
+        
+         LOG.info("\n\n*****************************************************************************\n\n");
+         
+         System.out.println("\n////////////////////// END OF EXECUTION \\\\\\\\\\\\\\\\\\\\\\\n\n");
+    }
+    
+    private static void printAppeal(Appeal appeal) {
+       System.out.println("\n\n[START OF APPEAL CONTENT]");
+        System.out.println("===================  (STATUS : " + appeal.getStatus().toString() + ")  ===================");
+        System.out.println(appeal.getAppealConent());
+        System.out.println("==============================================================");
+        
+        System.out.println("[END OF APPEAL CONTENT]\n\n");
+        
         
     }
+
 }

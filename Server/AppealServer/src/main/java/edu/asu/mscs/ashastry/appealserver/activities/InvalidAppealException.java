@@ -24,52 +24,16 @@
  */
 
 
-package edu.asu.mscs.ashastry.appealclient.model;
 
-import edu.asu.mscs.ashastry.appealclient.representations.AppealServerUri;
+package edu.asu.mscs.ashastry.appealserver.activities;
 
-
-public class AppealLink {
-
-    private int appealiD;
-    private AppealServerUri appealUri;
-    
-    public AppealLink() {
-    }
-    
-    public AppealLink(int appealID,AppealServerUri appealURI ){
-        this.appealiD = appealID;
-        this.appealUri = appealURI;
+public class InvalidAppealException extends RuntimeException {
+    public InvalidAppealException(Exception ex) {
+        super(ex);
     }
 
-    /**
-     * @return the appealiD
-     */
-    public int getAppealiD() {
-        return appealiD;
-    }
+    public InvalidAppealException() {}
 
-    /**
-     * @param appealiD the appealiD to set
-     */
-    public void setAppealiD(int appealiD) {
-        this.appealiD = appealiD;
-    }
+    private static final long serialVersionUID = 2300194325533639524L;
 
-    /**
-     * @return the appealUri
-     */
-    public AppealServerUri getAppealUri() {
-        return appealUri;
-    }
-
-    /**
-     * @param appealUri the appealUri to set
-     */
-    public void setAppealUri(AppealServerUri appealUri) {
-        this.appealUri = appealUri;
-    }
-    
-     
-    
 }

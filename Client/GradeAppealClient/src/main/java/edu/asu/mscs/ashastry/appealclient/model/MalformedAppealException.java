@@ -24,52 +24,11 @@
  */
 
 
+
 package edu.asu.mscs.ashastry.appealclient.model;
 
-import edu.asu.mscs.ashastry.appealclient.representations.AppealServerUri;
+public class MalformedAppealException extends Exception {
 
+    private static final long serialVersionUID = 2945143603435870736L;
 
-public class AppealLink {
-
-    private int appealiD;
-    private AppealServerUri appealUri;
-    
-    public AppealLink() {
-    }
-    
-    public AppealLink(int appealID,AppealServerUri appealURI ){
-        this.appealiD = appealID;
-        this.appealUri = appealURI;
-    }
-
-    /**
-     * @return the appealiD
-     */
-    public int getAppealiD() {
-        return appealiD;
-    }
-
-    /**
-     * @param appealiD the appealiD to set
-     */
-    public void setAppealiD(int appealiD) {
-        this.appealiD = appealiD;
-    }
-
-    /**
-     * @return the appealUri
-     */
-    public AppealServerUri getAppealUri() {
-        return appealUri;
-    }
-
-    /**
-     * @param appealUri the appealUri to set
-     */
-    public void setAppealUri(AppealServerUri appealUri) {
-        this.appealUri = appealUri;
-    }
-    
-     
-    
 }
