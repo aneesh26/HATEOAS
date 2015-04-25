@@ -31,6 +31,7 @@ import edu.asu.mscs.ashastry.appealserver.activities.CreateAppealActivity;
 import edu.asu.mscs.ashastry.appealserver.activities.CreateAppealListActivity;
 import edu.asu.mscs.ashastry.appealserver.activities.EditAppealActivity;
 import edu.asu.mscs.ashastry.appealserver.activities.FollowUpActivity;
+import edu.asu.mscs.ashastry.appealserver.activities.GetAppealActivity;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.PathParam;
@@ -88,7 +89,7 @@ public class appealResource {
         LOG.info("Creating an Appeal Resource");
         
         Response response;
-        System.out.println("Reached !!");
+        //System.out.println("Reached !!");
        
         try {
             AppealRepresentation responseRepresentation = new CreateAppealActivity().create(AppealRepresentation.fromXmlString(appealRepresentation).getAppeal(), new AppealServerUri(uriInfo.getRequestUri()));
@@ -96,14 +97,14 @@ public class appealResource {
         } catch (InvalidAppealException ioe) {
             ioe.printStackTrace();
             
-            LOG.debug("Invalid Order - Problem with the orderrepresentation {}", appealRepresentation);
+            LOG.debug("Invalid Order - Problem with the appealrepresentation {}", appealRepresentation);
             response = Response.status(Response.Status.BAD_REQUEST).build();
         } catch (Exception ex) {
-            LOG.debug("Someting went wrong creating the order resource");
+            LOG.debug("Someting went wrong creating the appeal resource");
             response = Response.serverError().build();
         }
         
-        LOG.debug("Resulting response for creating the order resource is {}", response);
+        LOG.debug("Resulting response for creating the appeal resource is {}", response);
         
         return response;
     }
@@ -122,20 +123,20 @@ public class appealResource {
             //response = Response.ok().entity(responseRepresentation).build();
              response = Response.created(responseRepresentation.getEditLink().getUri()).entity(responseRepresentation).build();
         } catch (InvalidAppealException ioe) {
-            LOG.debug("Invalid order in the XML representation {}", appealRepresentation);
+            LOG.debug("Invalid appeal in the XML representation {}", appealRepresentation);
             response = Response.status(Response.Status.BAD_REQUEST).build();
         } catch (NoSuchAppealException nsoe) {
-            LOG.debug("No such order resource to update");
+            LOG.debug("No such appeal resource to update");
             response = Response.status(Response.Status.NOT_FOUND).build();
         } catch(UpdateException ue) {
-            LOG.debug("Problem updating the order resource");
+            LOG.debug("Problem updating the appeal resource");
             response = Response.status(Response.Status.CONFLICT).build();
         } catch (Exception ex) {
-            LOG.debug("Something went wrong updating the order resource");
+            LOG.debug("Something went wrong updating the appeal resource");
             response = Response.serverError().build();
         } 
         
-        LOG.debug("Resulting response for updating the order resource is {}", response);
+        LOG.debug("Resulting response for updating the appeal resource is {}", response);
         
         return response;
      }
@@ -153,21 +154,21 @@ public class appealResource {
              AppealRepresentation responseRepresentation = new ApproveAppealActivity().approve(new AppealServerUri(uriInfo.getRequestUri()));
              response = Response.created(responseRepresentation.getViewLink().getUri()).entity(responseRepresentation).build();
         } catch (InvalidAppealException ioe) {
-            LOG.debug("Invalid order in the XML representation {}", appealRepresentation);
+            LOG.debug("Invalid appeal in the XML representation {}", appealRepresentation);
             response = Response.status(Response.Status.BAD_REQUEST).build();
         } catch (NoSuchAppealException nsoe) {
-            LOG.debug("No such order resource to update");
+            LOG.debug("No such appeal resource to update");
             response = Response.status(Response.Status.NOT_FOUND).build();
         } catch(UpdateException ue) {
-            LOG.debug("Problem updating the order resource");
+            LOG.debug("Problem updating the appeal resource");
             response = Response.status(Response.Status.CONFLICT).build();
         } catch (Exception ex) {
             ex.printStackTrace();
-            LOG.debug("Something went wrong updating the order resource");
+            LOG.debug("Something went wrong updating the appeal resource");
             response = Response.serverError().build();
         } 
         
-        LOG.debug("Resulting response for updating the order resource is {}", response);
+        LOG.debug("Resulting response for updating the appeal resource is {}", response);
         
         return response;
      }
@@ -185,20 +186,20 @@ public class appealResource {
             AppealRepresentation responseRepresentation = new WithdrawAppealActivity().withdraw(new AppealServerUri(uriInfo.getRequestUri()));
             response = Response.created(responseRepresentation.getViewLink().getUri()).entity(responseRepresentation).build();
         } catch (InvalidAppealException ioe) {
-            LOG.debug("Invalid order in the XML representation {}", appealRepresentation);
+            LOG.debug("Invalid appeal in the XML representation {}", appealRepresentation);
             response = Response.status(Response.Status.BAD_REQUEST).build();
         } catch (NoSuchAppealException nsoe) {
-            LOG.debug("No such order resource to update");
+            LOG.debug("No such appeal resource to update");
             response = Response.status(Response.Status.NOT_FOUND).build();
         } catch(UpdateException ue) {
-            LOG.debug("Problem updating the order resource");
+            LOG.debug("Problem updating the appeal resource");
             response = Response.status(Response.Status.CONFLICT).build();
         } catch (Exception ex) {
-            LOG.debug("Something went wrong updating the order resource");
+            LOG.debug("Something went wrong updating the appeal resource");
             response = Response.serverError().build();
         } 
         
-        LOG.debug("Resulting response for updating the order resource is {}", response);
+        LOG.debug("Resulting response for updating the appeal resource is {}", response);
         
         return response;
      }
@@ -215,19 +216,19 @@ public class appealResource {
             AppealRepresentation responseRepresentation =  new FollowUpActivity().followUp(new AppealServerUri(uriInfo.getRequestUri()));
             response = Response.created(responseRepresentation.getEditLink().getUri()).entity(responseRepresentation).build();
         } catch (InvalidAppealException ioe) {
-            LOG.debug("Invalid order in the XML representation {}", appealRepresentation);
+            LOG.debug("Invalid appeal in the XML representation {}", appealRepresentation);
             response = Response.status(Response.Status.BAD_REQUEST).build();
         } catch (NoSuchAppealException nsoe) {
-            LOG.debug("No such order resource to update");
+            LOG.debug("No such appeal resource to update");
            // LOG.debug("Sending the Client the list of Valid appeals for a folloup");
            // this.createAppealList(appealRepresentation);
             
             response = Response.status(Response.Status.NOT_FOUND).build();
         } catch(UpdateException ue) {
-            LOG.debug("Problem updating the order resource");
+            LOG.debug("Problem updating the appeal resource");
             response = Response.status(Response.Status.CONFLICT).build();
         } catch (Exception ex) {
-            LOG.debug("Something went wrong updating the order resource");
+            LOG.debug("Something went wrong updating the appeal resource");
             response = Response.serverError().build();
         } 
         
@@ -243,7 +244,7 @@ public class appealResource {
     public Response createAppealList(String appealListRepresentation) {
         LOG.info("Creating an AppealList Resource");
         Response response;
-        System.out.println("Reached get !!");
+     //   System.out.println("Reached get !!");
        
         try {
             //AppealListRepresentation responseRepresentation = new CreateAppealListActivity().createList(AppealListRepresentation.fromXmlString(appealRepresentation).getAppeal(), new AppealServerUri(uriInfo.getRequestUri()));
@@ -253,24 +254,55 @@ public class appealResource {
         } catch (InvalidAppealException ioe) {
             ioe.printStackTrace();
             
-            LOG.debug("Invalid Order - Problem with the orderrepresentation {}", appealListRepresentation);
+            LOG.debug("Invalid Order - Problem with the appealrepresentation {}", appealListRepresentation);
             response = Response.status(Response.Status.BAD_REQUEST).build();
         } catch (Exception ex) {
-            LOG.debug("Someting went wrong creating the order resource");
+            LOG.debug("Someting went wrong creating the appeal resource");
             response = Response.serverError().build();
         }
         
-        LOG.debug("Resulting response for creating the order resource is {}", response);
+        LOG.debug("Resulting response for creating the appeal resource is {}", response);
         
         return response;
     }
+    
+    @GET
+    @Path("/{appealId}")
+    @Produces("application/vnd.cse564-appeals+xml")
+    public Response getAppeal(String appealRepresentation) {
+        LOG.info("Retrieving an Appeal Resource");
+        
+        Response response;
+        
+        try {
+            AppealRepresentation responseRepresentation = new GetAppealActivity().get(new AppealServerUri(uriInfo.getRequestUri()));
+            //response = Response.ok().entity(responseRepresentation).build();
+             response = Response.created(responseRepresentation.getEditLink().getUri()).entity(responseRepresentation).build();
+        } catch (InvalidAppealException ioe) {
+            LOG.debug("Invalid appeal in the XML representation {}", appealRepresentation);
+            response = Response.status(Response.Status.BAD_REQUEST).build();
+        } catch (NoSuchAppealException nsoe) {
+            LOG.debug("No such appeal resource to update");
+            response = Response.status(Response.Status.NOT_FOUND).build();
+        } catch(UpdateException ue) {
+            LOG.debug("Problem updating the appeal resource");
+            response = Response.status(Response.Status.CONFLICT).build();
+        } catch (Exception ex) {
+            LOG.debug("Something went wrong updating the appeal resource");
+            response = Response.serverError().build();
+        } 
+        
+        LOG.debug("Resulting response for updating the appeal resource is {}", response);
+        
+        return response;
+     }
     
     /**
      * Retrieves representation of an instance of edu.asu.mscs.ashastry.appealserver.appealResource
      * @return an instance of java.lang.String
      
     @GET
-    @Path("/{orderId}")
+    @Path("/{appealId}")
     @Produces(MediaType.TEXT_XML)
     public String getMessage(){
         

@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>edu.asu.mscs.ashastry</groupId>
-    <artifactId>AppealServer</artifactId>
+    <artifactId>REST-Appeals-ashastry-NetBeans-8.0.2_Server</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>AppealServer</name>
+    <name>REST-Appeals-ashastry-NetBeans-8.0.2_Server</name>
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
